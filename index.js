@@ -42,4 +42,4 @@ console.log(tokens);
 escodegen.attachComments(value, comments, tokens);
 
 const text = escodegen.generate(value, { comment: true });
-console.log(text);
+console.log(text);;
