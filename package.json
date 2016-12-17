@@ -1,0 +1,13 @@
+{
+  "name": "js-refactor-tools",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Wesley Luk <wesleyluk@wesleyluk.com>",
+  "license": "MIT",
+  "dependencies": {
+    "acorn": "^4.0.3",
+    "escodegen": "^1.8.1",
+    "vinyl": "^2.0.1",
+    "vinyl-fs": "^2.4.4"
+  }
+}
