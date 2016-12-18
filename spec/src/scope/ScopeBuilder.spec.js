@@ -1,7 +1,7 @@
 const ScopeBuilder = require('../../../src/scope/ScopeBuilder');
 const AstTools = require('../../../src/AstTools');
 
-fdescribe('ScopeBuilder', () => {
+describe('ScopeBuilder', () => {
     let ast;
     let scopeBuilder;
     let programScope;
@@ -38,6 +38,7 @@ fdescribe('ScopeBuilder', () => {
         const variable = findVariableWithName('a');
         expect(variable.hasDeclaration()).toBe(true);
         const variableDeclaration = variable.getDeclaration();
+        expect(variableDeclaration.type).toBe('Identifier');
         expect(variable.getUses()).toEqual([variableDeclaration]);
         expect(programScope.getVariableScope(variableDeclaration))
             .toEqual(programScope.getRootScope());
@@ -68,5 +69,13 @@ fdescribe('ScopeBuilder', () => {
         buildWithProgram('function a(b) { var c; }');
         expect(getScopeDeclaringVariable('a')).not.toBe(getScopeDeclaringVariable('b'));
         expect(getScopeDeclaringVariable('b')).toBe(getScopeDeclaringVariable('c'));
+    });
+
+    it('should find variables used in expressions', () => {
+        buildWithProgram('var a; var b = a + 10; function c() { return a;};');
+        const variable = findVariableWithName('a');
+        const variableNode = variable.getDeclaration();
+        const variableScope = programScope.getVariableScope(variableNode);
+        expect(variableScope.getVariableUses(variableNode).length).toBe(3);
     });
 });

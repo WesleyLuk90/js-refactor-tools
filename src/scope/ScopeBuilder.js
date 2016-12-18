@@ -28,14 +28,11 @@ class ScopeBuilder {
 
     _defineVariables(node, scope, parentNode) {
         switch (node.type) {
-            case 'VariableDeclarator':
-                scope.defineVariable(node);
-                return true;
             case 'FunctionDeclaration':
                 scope.defineVariable(node);
                 return true;
             case 'Identifier':
-                if (parentNode.type === 'FunctionDeclaration') {
+                if (parentNode.type === 'FunctionDeclaration' || parentNode.type === 'VariableDeclarator') {
                     scope.defineVariable(node);
                     return true;
                 }
@@ -80,7 +77,10 @@ class ScopeBuilder {
                 node.left,
                 node.right,
                 node.callee,
-                node.arguments);
+                node.arguments,
+                node.id,
+                node.argument,
+                node.init);
         }
     }
 
