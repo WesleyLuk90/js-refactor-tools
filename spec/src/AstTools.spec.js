@@ -33,4 +33,10 @@ describe('AstTools', () => {
         expect(AstTools.nodeBeforeSelection({ start: 11, end: 19 }, { start: 10, end: 20 }))
             .toBe(false);
     });
+    it('should check equals', () => {
+        expect(AstTools.nodeEqualsSelection({ start: 1, end: 2 }, { start: 1, end: 2 }))
+            .toBe(true);
+        expect(AstTools.nodeEqualsSelection({ start: 1, end: 2 }, { start: 1, end: 3 }))
+            .toBe(false);
+    });
 });

@@ -1,4 +1,5 @@
 const ProgramScope = require('./ProgramScope');
+const AstTools = require('../AstTools');
 
 class ScopeBuilder {
     constructor(ast) {
@@ -28,9 +29,6 @@ class ScopeBuilder {
 
     _defineVariables(node, scope, parentNode) {
         switch (node.type) {
-            case 'FunctionDeclaration':
-                scope.defineVariable(node);
-                return true;
             case 'Identifier':
                 if (parentNode.type === 'FunctionDeclaration' || parentNode.type === 'VariableDeclarator') {
                     scope.defineVariable(node);
@@ -68,25 +66,15 @@ class ScopeBuilder {
 
     _getChildren(node) {
         if (node.type === 'FunctionDeclaration') {
-            return this._wrapNode(node.id);
+            return AstTools.getNodeChildren(node, 'FUNCTION_CHILDREN');
         } else {
-            return this._wrapNode(
-                node.body,
-                node.declarations,
-                node.expression,
-                node.left,
-                node.right,
-                node.callee,
-                node.arguments,
-                node.id,
-                node.argument,
-                node.init);
+            return AstTools.getNodeChildren(node, 'CHILDREN');
         }
     }
 
     _getScopedChildren(node) {
         if (node.type === 'FunctionDeclaration') {
-            return this._wrapNode(node.body, node.params);
+            return AstTools.getNodeChildren(node, 'FUNCTION_SCOPED_CHILDREN');
         } else {
             return [];
         }

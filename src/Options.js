@@ -26,6 +26,9 @@ class Options {
     }
 
     get(optionName) {
+        if (!this.options.has(optionName)) {
+            throw new Error(`Option ${optionName} is not defined`);
+        }
         return this.options.get(optionName);
     }
 }

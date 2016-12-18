@@ -78,4 +78,14 @@ describe('ScopeBuilder', () => {
         const variableScope = programScope.getVariableScope(variableNode);
         expect(variableScope.getVariableUses(variableNode).length).toBe(3);
     });
+
+    it('should set a functions declaration as its name only', () => {
+        buildWithProgram('function c() { }');
+        const variable = findVariableWithName('c');
+        const variableNode = variable.getDeclaration();
+        expect(variableNode.start).toBe(9);
+        expect(variableNode.end).toBe(10);
+        const variableScope = programScope.getVariableScope(variableNode);
+        expect(variableScope.getVariableUses(variableNode).length).toBe(1);
+    });
 });

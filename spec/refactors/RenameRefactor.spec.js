@@ -21,5 +21,24 @@ call(cat);
 var b = cat + 1;
 `);
         });
+        it('should rename a function', () => {
+            const project = toolkit.newProject()
+                .addFile('/index.js', `
+function abc() {}
+abc();
+const d = abc;
+`)
+                .applyRefactor('rename',
+                    toolkit
+                    .newOptions()
+                    .inputFromRegex('/index.js', /function (abc)\(\)/)
+                    .option('newName', 'def'));
+
+            expect(project.getFileContents('/index.js')).toEqual(`
+function def() {}
+def();
+const d = def;
+`);
+        });
     });
 });
