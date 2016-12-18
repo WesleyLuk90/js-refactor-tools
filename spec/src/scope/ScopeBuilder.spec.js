@@ -27,6 +27,12 @@ fdescribe('ScopeBuilder', () => {
         return null;
     }
 
+    function getScopeDeclaringVariable(name) {
+        const variable = findVariableWithName(name);
+        const variableNode = variable.getDeclaration();
+        return programScope.getVariableScope(variableNode);
+    }
+
     it('should get declared variables', () => {
         buildWithProgram('var a;');
         const variable = findVariableWithName('a');
@@ -45,12 +51,9 @@ fdescribe('ScopeBuilder', () => {
         expect(variableScope.getVariableUses(variableNode).length).toBe(3);
     });
 
-    it('should declare a variable if used as a function parameter', () => {
+    it('should declare a variable if used as a function parameter in a child scope', () => {
         buildWithProgram('function a(b) {}');
-        const variable = findVariableWithName('b');
-        const variableNode = variable.getDeclaration();
-        const variableScope = programScope.getVariableScope(variableNode);
-        expect(variableScope).not.toEqual(programScope.getRootScope());
+        expect(getScopeDeclaringVariable('b')).not.toEqual(programScope.getRootScope());
     });
 
     it('should not include redeclared variables', () => {
@@ -59,5 +62,11 @@ fdescribe('ScopeBuilder', () => {
         const variableNode = variable.getDeclaration();
         const variableScope = programScope.getVariableScope(variableNode);
         expect(variableScope.getVariableUses(variableNode).length).toBe(2);
+    });
+
+    it('should declare functions in a different scope than the parameters and body', () => {
+        buildWithProgram('function a(b) { var c; }');
+        expect(getScopeDeclaringVariable('a')).not.toBe(getScopeDeclaringVariable('b'));
+        expect(getScopeDeclaringVariable('b')).toBe(getScopeDeclaringVariable('c'));
     });
 });
