@@ -1,9 +1,14 @@
 const Check = require('./Check');
 
 class Options {
+    constructor() {
+        this.options = new Map();
+    }
+
     getSelection() {
         return this.selection;
     }
+
     setSelection(selection) {
         Check.isNumber(selection.start);
         Check.isNumber(selection.end);
@@ -14,6 +19,14 @@ class Options {
 
     getParseOptions() {
         return {};
+    }
+
+    set(optionName, value) {
+        this.options.set(optionName, value);
+    }
+
+    get(optionName) {
+        return this.options.get(optionName);
     }
 }
 

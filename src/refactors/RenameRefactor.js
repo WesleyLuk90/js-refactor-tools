@@ -1,19 +1,30 @@
 const AbstractRefactor = require('../AbstractRefactor');
 const AstTools = require('../AstTools');
+const EditList = require('../edits/EditList');
+const Edit = require('../edits/Edit');
 
 class RenameRefactor extends AbstractRefactor {
-    apply() {
-        const selection = this.project.getOptions().getSelection();
-        const parsedFile = this.getParsedFile(selection.filePath, { buildScope: true });
-        const node = this.findSelection(parsedFile);
+    apply(inputProject) {
+        const project = inputProject.clone();
+        const options = project.getOptions();
+        const selection = options.getSelection();
+        const parsedFile = this.getParsedFile(project, selection.filePath, { buildScope: true });
+        const node = this.findSelection(project, parsedFile);
 
         const variableScope = parsedFile.programScope.getVariableScope(node);
         const uses = variableScope.getVariableUses(node);
-        console.log(uses);
+
+        const editList = new EditList();
+        uses.forEach((use) => {
+            editList.addEdit(Edit.replace(selection.filePath, use.start, use.end, options.get('newName')));
+        });
+        editList.apply(project);
+
+        return project;
     }
 
-    findSelection(parsedFile) {
-        const selection = this.project.getOptions().getSelection();
+    findSelection(project, parsedFile) {
+        const selection = project.getOptions().getSelection();
 
         function recurse(node) {
             let childNodes = node.body;

@@ -9,17 +9,12 @@ class Project {
 
     addFile(file) {
         this.files.push(file);
+        return this;
     }
 
     addFiles(files) {
         files.forEach(f => this.addFile(f));
-    }
-
-    applyRefactor(refactor) {
-        const refactoredProject = new Project();
-        const newFiles = refactor.apply(this.files);
-        refactoredProject.addFiles(newFiles);
-        return refactoredProject;
+        return this;
     }
 
     setOptions(options) {
@@ -41,7 +36,11 @@ class Project {
     }
 
     getFileContents(filePath) {
-        return this.getFile(filePath).contents;
+        return this.getFile(filePath).contents.toString();
+    }
+
+    clone() {
+        return this;
     }
 }
 

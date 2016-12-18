@@ -23,4 +23,13 @@ module.exports = {
         }
         return value;
     },
+    that(value, msg) {
+        if (typeof value !== 'boolean') {
+            throw new Error('Expected a boolean value');
+        }
+        if (!value) {
+            throw new Error(msg || 'Check failed');
+        }
+        return value;
+    },
 };

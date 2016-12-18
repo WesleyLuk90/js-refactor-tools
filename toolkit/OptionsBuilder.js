@@ -5,6 +5,7 @@ class OptionsBuilder {
         this.options = new Map();
         this.input = null;
     }
+
     inputFromRegex(file, regex) {
         this.input = {
             file,
@@ -40,6 +41,10 @@ class OptionsBuilder {
         return chunks.map(c => c.replace(leftParen, '\\(').replace(rightParen, '\\)'));
     }
 
+    hasSelection() {
+        return !!this.input;
+    }
+
     getSelection(projectBuilder) {
         const match = this._findMatch(projectBuilder);
         const matchedString = match[0];
@@ -57,8 +62,12 @@ class OptionsBuilder {
     }
 
     createOptions(projectBuilder) {
-        return new Options()
-            .setSelection(this.getSelection(projectBuilder));
+        const options = new Options();
+        if (this.hasSelection()) {
+            options.setSelection(this.getSelection(projectBuilder));
+        }
+        this.options.forEach((value, option) => { options.set(option, value); });
+        return options;
     }
 }
 

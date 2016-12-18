@@ -2,6 +2,7 @@ const Vinyl = require('vinyl');
 const RefactorFactory = require('../src/RefactorFactory');
 const Project = require('../src/Project');
 const path = require('path');
+const OptionsBuilder = require('./OptionsBuilder');
 
 class ProjectBuilder {
     constructor() {
@@ -13,12 +14,18 @@ class ProjectBuilder {
         return this;
     }
 
-    applyRefactor(name, options) {
+    build(suppliedOptions) {
         const project = new Project();
         project.addFiles(this.files);
+        const options = suppliedOptions || new OptionsBuilder();
         project.setOptions(options.createOptions(this));
+        return project;
+    }
+
+    applyRefactor(name, options) {
+        const project = this.build(options);
         const refactor = new RefactorFactory().create(name, project);
-        return refactor.apply();
+        return refactor.apply(project);
     }
 
     getFile(fileName) {
