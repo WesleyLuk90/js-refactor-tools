@@ -16,13 +16,7 @@ class Scope {
 
     getVariableByName(name) {
         const variable = this.variablesByName.get(name);
-        if (variable) {
-            return variable;
-        }
-        if (!this.parentScope) {
-            throw new Error(`Failed to find variable with name '${name}'`);
-        }
-        return this.parentScope.getVariableByName(name);
+        return variable;
     }
 
     getOrCreateVariable(name) {
@@ -30,14 +24,13 @@ class Scope {
         if (!this.variablesByName.has(name)) {
             this.variablesByName.set(name, new Variable(name));
         }
-        return this.variablesByName.set(name);
+        return this.variablesByName.get(name);
     }
 
     defineVariable(node) {
         const variable = this.getOrCreateVariable(Variable.getName(node));
 
         variable.setDeclaration(node);
-        this.variableDeclarations.set(node, variable);
 
         this.programScope.setVariableScope(node, this);
     }
@@ -50,8 +43,22 @@ class Scope {
         this.programScope.setVariableScope(node, this);
     }
 
+    declaresVariableWithName(name) {
+        const variable = this.getVariableByName(name);
+        return !!variable && variable.hasDeclaration();
+    }
+
     getVariableUses(node) {
-        throw new Error();
+        const name = Variable.getName(node);
+        const variable = this.getVariableByName(name);
+        let uses = [];
+        if (variable) {
+            uses = variable.getUses();
+        }
+        const childrenUses = this.getChildScopes()
+            .filter(s => !s.declaresVariableWithName(name))
+            .map(s => s.getVariableUses(node));
+        return uses.concat(...childrenUses);
     }
 
     createChildScope() {

@@ -17,7 +17,6 @@ class ScopeBuilder {
             this._loadVariables(node, scope);
         }
         const children = this._getChildren(node);
-
         children.forEach(child => this._process(child, scope, node));
 
         const scopedChildren = this._getScopedChildren(node);
@@ -87,7 +86,7 @@ class ScopeBuilder {
 
     _getScopedChildren(node) {
         if (node.type === 'FunctionDeclaration') {
-            return this._wrapNode(node.body);
+            return this._wrapNode(node.body, node.params);
         } else {
             return [];
         }

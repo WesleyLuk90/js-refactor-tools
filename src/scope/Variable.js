@@ -2,6 +2,7 @@ const Check = require('../Check');
 
 class Variable {
     static getName(node) {
+        Check.notNull(node);
         if (node.id) {
             return node.id.name;
         }
@@ -18,10 +19,15 @@ class Variable {
     setDeclaration(declaration) {
         Check.notNull(declaration);
         this.declaration = declaration;
+        this.addUse(declaration);
     }
 
     getDeclaration() {
         return this.declaration;
+    }
+
+    hasDeclaration() {
+        return !!this.declaration;
     }
 
     addUse(node) {
