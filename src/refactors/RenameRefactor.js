@@ -29,11 +29,12 @@ class RenameRefactor extends AbstractRefactor {
         function recurse(node) {
             const childNodes = AstTools.getNodeChildren(node, 'CHILDREN');
             for (let i = 0; i < childNodes.length; i++) {
-                if (AstTools.nodeEqualsSelection(childNodes[i], selection)) {
-                    return childNodes[i];
+                const childNode = childNodes[i];
+                if (AstTools.nodeEqualsSelection(childNode, selection) && childNode.type === 'Identifier') {
+                    return childNode;
                 }
-                if (AstTools.nodeContainsSelection(childNodes[i], selection)) {
-                    return recurse(childNodes[i]);
+                if (AstTools.nodeContainsSelection(childNode, selection)) {
+                    return recurse(childNode);
                 }
             }
             throw new Error(`Failed to find selection ${JSON.stringify(selection)}`);

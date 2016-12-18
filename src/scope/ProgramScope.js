@@ -19,7 +19,6 @@ class ProgramScope {
     }
 
     getVariableScope(node) {
-        debugger;
         return Check.notNull(this.variableScopes.get(node));
     }
 }
