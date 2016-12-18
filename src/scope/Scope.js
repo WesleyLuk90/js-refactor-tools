@@ -7,7 +7,6 @@ class Scope {
         this.parentScope = parentScope;
 
         this.variablesByName = new Map();
-        this.variableDeclarations = new Map();
         this.childScopes = [];
 
         if (parentScope) {
@@ -26,25 +25,33 @@ class Scope {
         return this.parentScope.getVariableByName(name);
     }
 
-    defineVariable(node) {
-        const variable = new Variable(node);
+    getOrCreateVariable(name) {
+        Check.isString(name);
+        if (!this.variablesByName.has(name)) {
+            this.variablesByName.set(name, new Variable(name));
+        }
+        return this.variablesByName.set(name);
+    }
 
-        this.variablesByName.set(variable.getName(), variable);
+    defineVariable(node) {
+        const variable = this.getOrCreateVariable(Variable.getName(node));
+
+        variable.setDeclaration(node);
         this.variableDeclarations.set(node, variable);
 
         this.programScope.setVariableScope(node, this);
     }
 
     addVariableUse(node) {
-        Check.isString(node.name);
-        const variable = this.getVariableByName(node.name);
+        const variable = this.getOrCreateVariable(Variable.getName(node));
+
         variable.addUse(node);
 
         this.programScope.setVariableScope(node, this);
     }
 
     getVariableUses(node) {
-        return this.variableDeclarations.get(node).getUses();
+        throw new Error();
     }
 
     createChildScope() {

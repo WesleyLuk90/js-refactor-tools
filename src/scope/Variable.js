@@ -1,14 +1,23 @@
 const Check = require('../Check');
 
 class Variable {
-    constructor(declaration) {
+    static getName(node) {
+        if (node.id) {
+            return node.id.name;
+        }
+        if (node.name) {
+            return node.name;
+        }
+        throw new Error(`Failed to get name of variable ${node}`);
+    }
+    constructor(name) {
+        this.name = Check.isString(name);
+        this.uses = [];
+    }
+
+    setDeclaration(declaration) {
         Check.notNull(declaration);
         this.declaration = declaration;
-        this.uses = [];
-
-
-        Check.isString(this.getName());
-        this.addUse(declaration);
     }
 
     getDeclaration() {
@@ -24,13 +33,7 @@ class Variable {
     }
 
     getName() {
-        if (this.declaration.id) {
-            return this.declaration.id.name;
-        }
-        if (this.declaration.name) {
-            return this.declaration.name;
-        }
-        throw new Error(`Failed to get name of variable ${this}`);
+        return this.name;
     }
 }
 
