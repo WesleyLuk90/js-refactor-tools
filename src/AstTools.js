@@ -39,6 +39,8 @@ const AstTools = module.exports = {
             'argument',
             'init',
             'params',
+            'value',
+            'superClass',
         ],
         FUNCTION_CHILDREN: [
             'id',

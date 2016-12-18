@@ -18,7 +18,7 @@ class Options {
     }
 
     getParseOptions() {
-        return {};
+        return { ecmaVersion: 6 };
     }
 
     set(optionName, value) {

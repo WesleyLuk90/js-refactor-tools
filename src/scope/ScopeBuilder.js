@@ -17,6 +17,7 @@ class ScopeBuilder {
         if (!this._defineVariables(node, scope, parentNode)) {
             this._loadVariables(node, scope);
         }
+        console.log(node);
         const children = this._getChildren(node);
         children.forEach(child => this._process(child, scope, node));
 
@@ -50,22 +51,8 @@ class ScopeBuilder {
         }
     }
 
-    _wrapNode(...nodes) {
-        const arrayNodes = [];
-        nodes.forEach((n) => {
-            if (n) {
-                if (Array.isArray(n)) {
-                    arrayNodes.push(...n);
-                } else {
-                    arrayNodes.push(n);
-                }
-            }
-        });
-        return arrayNodes;
-    }
-
     _getChildren(node) {
-        if (node.type === 'FunctionDeclaration') {
+        if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
             return AstTools.getNodeChildren(node, 'FUNCTION_CHILDREN');
         } else {
             return AstTools.getNodeChildren(node, 'CHILDREN');
@@ -73,7 +60,7 @@ class ScopeBuilder {
     }
 
     _getScopedChildren(node) {
-        if (node.type === 'FunctionDeclaration') {
+        if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
             return AstTools.getNodeChildren(node, 'FUNCTION_SCOPED_CHILDREN');
         } else {
             return [];

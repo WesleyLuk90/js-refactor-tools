@@ -61,5 +61,35 @@ cat + 1;
 function b() { var a = 2; }
 `);
         });
+
+        it('should rename classes', () => {
+            const project = toolkit.newProject()
+                .addFile('/index.js', `
+class MyClass {
+    static MyClass() {
+        return new MyClass();
+    }
+}
+class MyClass2 extends MyClass {
+}
+const myClass = new MyClass();
+`)
+                .applyRefactor('rename',
+                    toolkit
+                    .newOptions()
+                    .inputFromRegex('/index.js', /class (MyClass) /)
+                    .option('newName', 'MyNewClass'));
+
+            expect(project.getFileContents('/index.js')).toEqual(`
+class MyNewClass {
+    static MyClass() {
+        return new MyNewClass();
+    }
+}
+class MyClass2 extends MyNewClass {
+}
+const myClass = new MyNewClass();
+`);
+        });
     });
 });
