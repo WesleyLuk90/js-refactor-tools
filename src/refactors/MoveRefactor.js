@@ -19,7 +19,6 @@ class MoveRefactor extends AbstractRefactor {
     }
 
     getRequireImport(node) {
-
         if (node.type !== 'CallExpression') {
             return null;
         }
