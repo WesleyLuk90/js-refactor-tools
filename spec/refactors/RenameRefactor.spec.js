@@ -1,6 +1,6 @@
 const toolkit = require('../../toolkit');
 
-describe('rename', () => {
+describe('RenameRefactor', () => {
     describe('local variable', () => {
         it('should rename a module scoped variable', () => {
             const project = toolkit.newProject()

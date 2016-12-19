@@ -10,8 +10,8 @@ const AstTools = module.exports = {
     nodeBeforeSelection(node, selection) {
         return node.start <= selection.start && node.end <= selection.start;
     },
-    parse(program) {
-        return acorn.parse(program);
+    parse(program, options) {
+        return acorn.parse(program, options);
     },
     getNodeChildren(node, type) {
         const arrayNodes = [];

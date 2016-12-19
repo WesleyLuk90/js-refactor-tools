@@ -7,6 +7,10 @@ class Project {
         this.files = [];
     }
 
+    getFiles() {
+        return this.files.slice();
+    }
+
     addFile(file) {
         this.files.push(file);
         return this;

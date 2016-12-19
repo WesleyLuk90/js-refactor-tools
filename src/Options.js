@@ -18,7 +18,11 @@ class Options {
     }
 
     getParseOptions() {
-        return { ecmaVersion: 6 };
+        return { ecmaVersion: 6, sourceType: 'module' };
+    }
+
+    getTrimableExtensions() {
+        return ['.js', '.json'];
     }
 
     set(optionName, value) {
