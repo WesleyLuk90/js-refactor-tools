@@ -2,10 +2,18 @@ const Check = require('./Check');
 const AstTools = require('./AstTools');
 const ScopeBuilder = require('./scope/ScopeBuilder');
 
+/* eslint-disable no-unused-vars */
 class AbstractRefactor {
 
-    apply() {
+    getEdit(project) {
         throw new Error('Not Implemented');
+    }
+
+    apply(project) {
+        const edit = this.getEdit(project);
+        const outputProject = project.clone();
+        edit.apply(outputProject);
+        return outputProject;
     }
 
     getParsedFile(project, fileName, suppliedOptions) {

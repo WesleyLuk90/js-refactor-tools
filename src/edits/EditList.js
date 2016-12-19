@@ -1,6 +1,6 @@
 const AbstractEdit = require('./AbstractEdit');
-const Edit = require('./Edit');
 const Check = require('../Check');
+const Edit = require('./Edit');
 
 class EditList extends AbstractEdit {
     constructor() {
@@ -9,9 +9,9 @@ class EditList extends AbstractEdit {
     }
 
     addEdit(edit) {
-        Check.isInstanceOf(edit, Edit);
+        Check.isInstanceOf(edit, AbstractEdit);
         this.edits.forEach((e) => {
-            if (e.overlaps(edit)) {
+            if (Edit.editsOverlap(e, edit)) {
                 throw new Error(`Edits overlap ${e.toString()} ${edit.toString()}`);
             }
         });

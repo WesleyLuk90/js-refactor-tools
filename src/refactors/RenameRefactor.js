@@ -4,8 +4,7 @@ const EditList = require('../edits/EditList');
 const Edit = require('../edits/Edit');
 
 class RenameRefactor extends AbstractRefactor {
-    apply(inputProject) {
-        const project = inputProject.clone();
+    getEdit(project) {
         const options = project.getOptions();
         const selection = options.getSelection();
         const parsedFile = this.getParsedFile(project, selection.filePath, { buildScope: true });
@@ -18,9 +17,7 @@ class RenameRefactor extends AbstractRefactor {
         uses.forEach((use) => {
             editList.addEdit(Edit.replace(selection.filePath, use.start, use.end, options.get('newName')));
         });
-        editList.apply(project);
-
-        return project;
+        return editList;
     }
 
     findSelection(project, parsedFile) {

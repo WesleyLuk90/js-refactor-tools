@@ -1,45 +1,17 @@
-const AbstractEdit = require('./AbstractEdit');
-const Check = require('../Check');
+const ReplaceEdit = require('./ReplaceEdit');
+const MoveEdit = require('./MoveEdit');
 
-class Edit extends AbstractEdit {
+class Edit {
     static replace(filePath, start, end, content) {
-        Check.isString(filePath);
-        Check.isNumber(start);
-        Check.isNumber(end);
-        Check.isString(content);
-        Check.that(end - start >= 0);
-        const edit = new Edit();
-        edit.replace = { filePath, start, end, content };
-        return edit;
+        return new ReplaceEdit(filePath, start, end, content);
     }
 
-    newContentLength() {
-        return Buffer.byteLength(this.replace.content);
+    static move(sourcePath, targetPath) {
+        return new MoveEdit(sourcePath, targetPath);
     }
 
-    deltaSize() {
-        return this.newContentLength() - (this.replace.end - this.replace.start);
-    }
-
-    apply(project) {
-        const file = project.getFile(this.replace.filePath);
-        const newContent = Buffer.alloc(file.contents.length + this.deltaSize());
-        file.contents.copy(newContent, 0, 0, this.replace.start);
-        newContent.write(this.replace.content, this.replace.start);
-        const endOfContent = this.replace.start + this.newContentLength();
-        file.contents.copy(newContent, endOfContent, this.replace.end);
-        file.contents = newContent;
-    }
-
-    overlaps(otherEdit) {
-        Check.isInstanceOf(otherEdit, Edit);
-        return this.replace.filePath === otherEdit.replace.filePath &&
-            this.replace.end > otherEdit.replace.start &&
-            this.replace.start < otherEdit.replace.end;
-    }
-
-    toString() {
-        return `${this.replace.filePath} (${this.replace.start},${this.replace.end}) => ${this.replace.content}`;
+    static editsOverlap(edit1, edit2) {
+        return edit1.overlaps(edit2) || edit2.overlaps(edit1);
     }
 }
 

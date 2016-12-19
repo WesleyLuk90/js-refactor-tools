@@ -17,6 +17,15 @@ class Project {
         return this;
     }
 
+    moveFile(filePath, newPath) {
+        const file = this.getFile(filePath);
+        file.path = newPath;
+    }
+
+    hasFile(filePath) {
+        return !!this._getFile(filePath);
+    }
+
     setOptions(options) {
         Check.isInstanceOf(options, Options);
         this.options = options;
@@ -28,11 +37,15 @@ class Project {
 
     getFile(filePath) {
         Check.isString(filePath);
-        const file = this.files.filter(f => f.path === path.normalize(filePath))[0];
+        const file = this._getFile(filePath);
         if (!file) {
             throw new Error(`Failed to find file ${filePath}`);
         }
         return file;
+    }
+
+    _getFile(filePath) {
+        return this.files.filter(f => f.path === path.normalize(filePath))[0];;
     }
 
     getFileContents(filePath) {

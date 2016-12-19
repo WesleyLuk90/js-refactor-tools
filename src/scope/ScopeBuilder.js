@@ -17,7 +17,6 @@ class ScopeBuilder {
         if (!this._defineVariables(node, scope, parentNode)) {
             this._loadVariables(node, scope);
         }
-        console.log(node);
         const children = this._getChildren(node);
         children.forEach(child => this._process(child, scope, node));
 
