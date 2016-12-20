@@ -15,7 +15,7 @@ function cliMain(procArgs) {
     const args = minimist(procArgs);
     const srcs = asArray(args.src);
 
-    const sources = vinylFs.src(srcs);
+    const sources = vinylFs.src(srcs, { base: process.cwd() });
 
     const project = new Project();
     const options = new Options();
@@ -24,9 +24,8 @@ function cliMain(procArgs) {
     project.setOptions(options);
     project.addFilesStream(sources)
         .then(() => {
-            console.log(project.files[0].basename);
             const refactor = new RefactorFactory().create('move');
-            console.log(refactor.getEdit(project));
+            console.log(JSON.stringify(refactor.getEdit(project), null, 4));
             // console.log(project.files);
         })
         .catch(e => console.log(e));
