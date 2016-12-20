@@ -3,6 +3,9 @@ const RefactorFactory = require('../src/RefactorFactory');
 const Project = require('../src/Project');
 const path = require('path');
 const OptionsBuilder = require('./OptionsBuilder');
+const Check = require('../src/Check');
+
+const VIRTUAL_PROJECT_PATH = '/var/projects';
 
 class ProjectBuilder {
     constructor() {
@@ -10,7 +13,13 @@ class ProjectBuilder {
     }
 
     addFile(filePath, contents) {
-        this.files.push(new Vinyl({ path: filePath, contents: Buffer.from(contents) }));
+        Check.pathIsRelative(filePath);
+        this.files.push(
+            new Vinyl({
+                base: VIRTUAL_PROJECT_PATH,
+                path: path.join(VIRTUAL_PROJECT_PATH, filePath),
+                contents: Buffer.from(contents),
+            }));
         return this;
     }
 
@@ -29,7 +38,7 @@ class ProjectBuilder {
     }
 
     getFile(fileName) {
-        const file = this.files.filter(f => f.path === path.normalize(fileName))[0];
+        const file = this.files.filter(f => f.relative === path.normalize(fileName))[0];
         if (!file) {
             throw new Error(`Failed to find file ${fileName}`);
         }

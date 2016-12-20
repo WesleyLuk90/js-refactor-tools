@@ -4,8 +4,8 @@ const Check = require('../Check');
 class MoveEdit extends AbstractEdit {
     constructor(sourcePath, targetPath) {
         super();
-        Check.isString(sourcePath);
-        Check.isString(targetPath);
+        Check.pathIsRelative(sourcePath);
+        Check.pathIsRelative(targetPath);
 
         this.sourcePath = sourcePath;
         this.targetPath = targetPath;

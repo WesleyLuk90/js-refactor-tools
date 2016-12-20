@@ -21,9 +21,17 @@ class Project {
         return this;
     }
 
+    addFilesStream(stream) {
+        return new Promise((resolve, reject) => {
+            stream.on('error', reject);
+            stream.on('data', file => this.addFile(file));
+            stream.on('end', resolve);
+        });
+    }
+
     moveFile(filePath, newPath) {
         const file = this.getFile(filePath);
-        file.path = newPath;
+        file.path = path.join(file.base, newPath);
     }
 
     hasFile(filePath) {
@@ -49,7 +57,7 @@ class Project {
     }
 
     _getFile(filePath) {
-        return this.files.filter(f => f.path === path.normalize(filePath))[0];;
+        return this.files.filter(f => f.relative === path.normalize(filePath))[0];
     }
 
     getFileContents(filePath) {

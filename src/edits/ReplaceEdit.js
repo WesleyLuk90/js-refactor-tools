@@ -4,7 +4,7 @@ const Check = require('../Check');
 class ReplaceEdit extends AbstractEdit {
     constructor(filePath, start, end, content) {
         super();
-        Check.isString(filePath);
+        Check.pathIsRelative(filePath);
         Check.isNumber(start);
         Check.isNumber(end);
         Check.isString(content);

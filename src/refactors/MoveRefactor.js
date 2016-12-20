@@ -117,7 +117,7 @@ class MoveRefactor extends AbstractRefactor {
     getEdit(project) {
         const editStages = new EditStages();
         const files = project.getFiles();
-        const fileEdits = files.map(file => this.getFileEdits(project, file.path));
+        const fileEdits = files.map(file => this.getFileEdits(project, file.relative));
         const edits = [].concat(...fileEdits);
         editStages.addStage(new EditList().addEdits(edits));
         const options = project.getOptions();

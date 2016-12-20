@@ -1,4 +1,4 @@
-module.exports = {
+const Check = module.exports = {
     isNumber(a) {
         if (typeof a !== 'number') {
             throw new Error(`Expected a number but got ${a}`);
@@ -31,5 +31,12 @@ module.exports = {
             throw new Error(msg || 'Check failed');
         }
         return value;
+    },
+    pathIsRelative(filePath) {
+        Check.isString(filePath);
+        if (filePath.charAt(0) === '/') {
+            throw new Error(`Expected a relative path but got ${filePath}`);
+        }
+        return filePath;
     },
 };
