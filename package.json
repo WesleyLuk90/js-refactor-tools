@@ -17,6 +17,7 @@
         "jasmine": "^2.5.2"
     },
     "scripts": {
-        "test": "jasmine"
+        "test": "jasmine",
+        "dev-test": "nodemon node_modules/jasmine/bin/jasmine.js"
     }
 }

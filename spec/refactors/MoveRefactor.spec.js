@@ -28,6 +28,18 @@ describe('MoveRefactor', () => {
 
             expect(project.getFileContents('/module/index.js')).toEqual("const other = require('../here');");
         });
+        it('should update relative imports of the moved file', () => {
+            const project = toolkit.newProject()
+                .addFile('/module/index.js', '')
+                .addFile('/some/place/other.js', "const other = require('../../module/index');")
+                .applyRefactor('move',
+                    toolkit
+                    .newOptions()
+                    .option('sourceFile', '/some/place/other.js')
+                    .option('targetFile', '/here.js'));
+
+            expect(project.getFileContents('/here.js')).toEqual("const other = require('./module/index');");
+        });
     });
     describe('module import', () => {
         it('should update files in the same directory', () => {

@@ -4,18 +4,56 @@ const EditList = require('../edits/EditList');
 const AstTools = require('../AstTools');
 const path = require('path');
 const EditStages = require('../edits/EditStages');
+const Check = require('../Check');
+const NodePaths = require('./NodePaths');
 
-class MoveRefactor extends AbstractRefactor {
+const MODE_OTHER_FILE = 'MODE_OTHER_FILE';
+const MODE_SELF_FILE = 'MODE_SELF_FILE';
 
-    getEdit(project) {
-        const editStages = new EditStages();
-        const files = project.getFiles();
-        const fileEdits = files.map(file => this.getFileEdits(project, file.path));
-        const edits = [].concat(...fileEdits);
-        editStages.addStage(new EditList().addEdits(edits));
-        const options = project.getOptions();
-        editStages.addStage(Edit.move(options.get('sourceFile'), options.get('targetFile')));
-        return editStages;
+class NodeIterator {
+    constructor(project, filePath, rootNode, mode) {
+        this.project = Check.notNull(project);
+        this.filePath = Check.isString(filePath);
+        this.rootNode = Check.notNull(rootNode);
+        this.mode = Check.isString(mode);
+    }
+
+    addMatchingNodes(node) {
+        const importNode = this.getImportNode(node);
+        if (!importNode) {
+            return;
+        }
+        if (this.mode === MODE_OTHER_FILE) {
+            if (this.isMatchingPath(this.filePath, importNode.value)) {
+                const newPath = NodePaths.importPath(this.filePath, this.project.getOptions().get('targetFile'));
+                const newPathLiteral = `'${newPath}'`;
+                const replaceEdit = Edit
+                    .replace(this.filePath, importNode.start, importNode.end, newPathLiteral);
+                this.editList.push(replaceEdit);
+            }
+        }
+        if (this.mode === MODE_SELF_FILE) {
+            const matchingFilePath = this.getMatchingFilePath(this.filePath, importNode.value);
+            if (matchingFilePath) {
+                const newPath = NodePaths.importPath(this.project.getOptions().get('targetFile'), matchingFilePath);
+                const newPathLiteral = `'${newPath}'`;
+                const replaceEdit = Edit
+                    .replace(this.filePath, importNode.start, importNode.end, newPathLiteral);
+                this.editList.push(replaceEdit);
+            }
+        }
+    }
+
+    recurse(node) {
+        this.addMatchingNodes(node);
+        AstTools.getNodeChildren(node, 'CHILDREN')
+            .forEach(child => this.recurse(child));
+    }
+
+    getEdits() {
+        this.editList = [];
+        this.recurse(this.rootNode);
+        return this.editList;
     }
 
     getRequireImport(node) {
@@ -57,67 +95,53 @@ class MoveRefactor extends AbstractRefactor {
         return this.getRequireImport(node) || this.getModuleImport(node);
     }
 
-    isMatchingPath(project, candidatePath) {
-        const sourceFile = path.normalize(project.getOptions().get('sourceFile'));
-        const extensions = project.getOptions().getTrimableExtensions();
-        extensions.push('');
-        return extensions.some(ext => candidatePath + ext === sourceFile);
+    isMatchingPath(filePath, importPath) {
+        const sourceFile = path.normalize(this.project.getOptions().get('sourceFile'));
+        return NodePaths.resolvePath(filePath, importPath)
+            .some(p => p === sourceFile);
     }
 
-    toNodeStyle(filePath) {
-        const normalizedSlashes = filePath.replace(/\\/g, '/');
-        if (normalizedSlashes.charAt(0) !== '.') {
-            return `./${normalizedSlashes}`;
+    getMatchingFilePath(filePath, importPath) {
+        const resolvedPaths = NodePaths.resolvePath(filePath, importPath);
+        for (let i = 0; i < resolvedPaths.length; i++) {
+            if (this.project.hasFile(resolvedPaths[i])) {
+                return resolvedPaths[i];
+            }
         }
-        return normalizedSlashes;
+        return null;
     }
+}
 
-    trimExtension(filePath, extensions) {
-        const matchingExtension = extensions.filter(e => filePath.endsWith(e))[0];
-        if (matchingExtension) {
-            return filePath
-                .substring(0, filePath.length - matchingExtension.length);
-        }
-        return filePath;
-    }
+class MoveRefactor extends AbstractRefactor {
 
-    newPath(project, fromFile) {
-        const fromFileDirectory = path.dirname(fromFile);
-        const destinationFile = path.normalize(project.getOptions().get('targetFile'));
-        const relativePath = path.relative(fromFileDirectory, destinationFile);
-        const nodeStyleRelativePath = this.toNodeStyle(relativePath);
-        const extensions = project.getOptions().getTrimableExtensions();
-        const pathWithoutExtension = this.trimExtension(nodeStyleRelativePath, extensions);
-        return `'${pathWithoutExtension}'`;
+    getEdit(project) {
+        const editStages = new EditStages();
+        const files = project.getFiles();
+        const fileEdits = files.map(file => this.getFileEdits(project, file.path));
+        const edits = [].concat(...fileEdits);
+        editStages.addStage(new EditList().addEdits(edits));
+        const options = project.getOptions();
+        editStages.addStage(Edit.move(options.get('sourceFile'), options.get('targetFile')));
+        return editStages;
     }
 
     getFileEdits(project, filePath) {
+        const sourceFile = path.normalize(project.getOptions().get('sourceFile'));
+        if (sourceFile === filePath) {
+            return this.getMovedFileEdits(project, filePath);
+        } else {
+            return this.getOtherFileEdits(project, filePath);
+        }
+    }
+
+    getOtherFileEdits(project, filePath) {
         const parsed = this.getParsedFile(project, filePath);
+        return new NodeIterator(project, filePath, parsed.ast, MODE_OTHER_FILE).getEdits();
+    }
 
-        const edits = [];
-
-        const addMatchingNodes = (node) => {
-            const importNode = this.getImportNode(node);
-            if (!importNode) {
-                return;
-            }
-            const resolvedPath = path.join(path.dirname(filePath), importNode.value);
-            if (!this.isMatchingPath(project, resolvedPath)) {
-                return;
-            }
-            const newPathLiteral = this.newPath(project, filePath);
-            const replaceEdit = Edit
-                .replace(filePath, importNode.start, importNode.end, newPathLiteral);
-            edits.push(replaceEdit);
-        };
-
-        const recurse = (node) => {
-            addMatchingNodes(node);
-            AstTools.getNodeChildren(node, 'CHILDREN')
-                .forEach(child => recurse(child));
-        };
-        recurse(parsed.ast);
-        return edits;
+    getMovedFileEdits(project, filePath) {
+        const parsed = this.getParsedFile(project, filePath);
+        return new NodeIterator(project, filePath, parsed.ast, MODE_SELF_FILE).getEdits();
     }
 }
 
