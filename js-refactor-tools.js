@@ -3,6 +3,8 @@ const vinylFs = require('vinyl-fs');
 const Project = require('./src/Project');
 const Options = require('./src/Options');
 const RefactorFactory = require('./src/RefactorFactory');
+const ProjectApplier = require('./src/ProjectApplier');
+const fs = require('fs');
 
 function asArray(value) {
     if (Array.isArray(value)) {
@@ -25,10 +27,13 @@ function cliMain(procArgs) {
     project.addFilesStream(sources)
         .then(() => {
             const refactor = new RefactorFactory().create('move');
-            console.log(JSON.stringify(refactor.getEdit(project), null, 4));
+            const updatedProject = refactor.getEdit(project);
+            return new ProjectApplier(fs).apply(updatedProject, project);
+            // console.log(JSON.stringify(refactor.getEdit(project), null, 4));
             // console.log(project.files);
         })
-        .catch(e => console.log(e));
+        .catch(e => console.log(e))
+        .then(() => console.log('done'));
 }
 
 cliMain(process.argv);

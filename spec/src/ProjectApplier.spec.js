@@ -11,7 +11,7 @@ describe('ProjectApplier', () => {
         };
     });
 
-    it('should apply changes', () => {
+    it('should apply changes', (done) => {
         const project = toolkit.newProject()
             .addFile('a.txt', 'a')
             .addFile('b.txt', 'b')
@@ -22,12 +22,15 @@ describe('ProjectApplier', () => {
         project.getFile('b.txt').contents = Buffer.from('hello');
 
         const applier = new ProjectApplier(fs);
-        applier.apply(originalProject, project);
-
-        expect(fs.unlink.calls.count()).toBe(1);
-        expect(fs.unlink).toHaveBeenCalledWith(path.normalize('/var/projects/a.txt'), jasmine.any(Function));
-        expect(fs.writeFile.calls.count()).toBe(2);
-        expect(fs.writeFile).toHaveBeenCalledWith(path.normalize('/var/projects/b.txt'), Buffer.from('hello'), jasmine.any(Function));
-        expect(fs.writeFile).toHaveBeenCalledWith(path.normalize('/var/projects/d.txt'), Buffer.from('a'), jasmine.any(Function));
+        applier.apply(originalProject, project)
+            .then(() => {
+                expect(fs.unlink.calls.count()).toBe(1);
+                expect(fs.unlink).toHaveBeenCalledWith(path.normalize('/var/projects/a.txt'), jasmine.any(Function));
+                expect(fs.writeFile.calls.count()).toBe(2);
+                expect(fs.writeFile).toHaveBeenCalledWith(path.normalize('/var/projects/b.txt'), Buffer.from('hello'), jasmine.any(Function));
+                expect(fs.writeFile).toHaveBeenCalledWith(path.normalize('/var/projects/d.txt'), Buffer.from('a'), jasmine.any(Function));
+            })
+            .catch(fail)
+            .then(done);
     });
 });
