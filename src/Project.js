@@ -65,7 +65,7 @@ class Project {
     }
 
     clone() {
-        return this;
+        return new Project().addFiles(this.getFiles().map(f => f.clone()));
     }
 }
 
