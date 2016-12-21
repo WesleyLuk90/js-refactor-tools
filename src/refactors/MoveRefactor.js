@@ -5,7 +5,7 @@ const AstTools = require('../AstTools');
 const path = require('path');
 const EditStages = require('../edits/EditStages');
 const Check = require('../Check');
-const NodePaths = require('./NodePaths');
+const NodePaths = require('../NodePaths');
 
 const MODE_OTHER_FILE = 'MODE_OTHER_FILE';
 const MODE_SELF_FILE = 'MODE_SELF_FILE';

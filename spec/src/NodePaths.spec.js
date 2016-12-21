@@ -1,4 +1,4 @@
-const NodePaths = require('../../src/refactors/NodePaths');
+const NodePaths = require('../../src/NodePaths');
 
 describe('NodePaths', () => {
     it('should nodify an import path', () => {

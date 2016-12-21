@@ -27,8 +27,8 @@ function cliMain(procArgs) {
     project.addFilesStream(sources)
         .then(() => {
             const refactor = new RefactorFactory().create('move');
-            const updatedProject = refactor.getEdit(project);
-            return new ProjectApplier(fs).apply(updatedProject, project);
+            const updatedProject = refactor.apply(project);
+            return new ProjectApplier(fs).apply(project, updatedProject);
             // console.log(JSON.stringify(refactor.getEdit(project), null, 4));
             // console.log(project.files);
         })
