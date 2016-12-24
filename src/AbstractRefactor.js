@@ -1,6 +1,7 @@
 const Check = require('./Check');
 const AstTools = require('./AstTools');
 const ScopeBuilder = require('./scope/ScopeBuilder');
+const AbstractEdit = require('./edits/AbstractEdit');
 
 /* eslint-disable no-unused-vars */
 class AbstractRefactor {
@@ -12,6 +13,7 @@ class AbstractRefactor {
     apply(project) {
         const edit = this.getEdit(project);
         const outputProject = project.clone();
+        Check.isInstanceOf(edit, AbstractEdit);
         edit.apply(outputProject);
         return outputProject;
     }

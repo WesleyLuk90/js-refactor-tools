@@ -4,6 +4,7 @@ const Project = require('../src/Project');
 const path = require('path');
 const OptionsBuilder = require('./OptionsBuilder');
 const Check = require('../src/Check');
+const AbstractRefactor = require('../src/AbstractRefactor');
 
 const VIRTUAL_PROJECT_PATH = '/var/projects';
 
@@ -34,6 +35,7 @@ class ProjectBuilder {
     applyRefactor(name, options) {
         const project = this.build(options);
         const refactor = new RefactorFactory().create(name, project);
+        Check.isInstanceOf(refactor, AbstractRefactor);
         return refactor.apply(project);
     }
 
