@@ -7,3 +7,4 @@ rules:
     "no-underscore-dangle": ["error", { allowAfterThis: true }]
     "no-else-return": [0]
     "quotes": ["error", "single", { avoidEscape: true }]
+    "import/no-extraneous-dependencies": [0]

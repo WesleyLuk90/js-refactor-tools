@@ -12,7 +12,7 @@ describe('MoveRefactor', () => {
                     .option('sourceFile', 'other.js')
                     .option('targetFile', 'other2.js'));
 
-            expect(project.getFileContents('index.js')).toEqual("const other = require('./other2');");
+            expect(project.getFileContents('index.js')).codeEquals("const other = require('./other2');");
             expect(project.hasFile('other.js')).toBe(false);
             expect(project.hasFile('other2.js')).toBe(true);
         });
@@ -26,7 +26,7 @@ describe('MoveRefactor', () => {
                     .option('sourceFile', 'some/place/other.js')
                     .option('targetFile', 'here.js'));
 
-            expect(project.getFileContents('module/index.js')).toEqual("const other = require('../here');");
+            expect(project.getFileContents('module/index.js')).codeEquals("const other = require('../here');");
         });
         it('should update relative imports of the moved file', () => {
             const project = toolkit.newProject()
@@ -38,7 +38,7 @@ describe('MoveRefactor', () => {
                     .option('sourceFile', 'some/place/other.js')
                     .option('targetFile', 'here.js'));
 
-            expect(project.getFileContents('here.js')).toEqual("const other = require('./module/index');");
+            expect(project.getFileContents('here.js')).codeEquals("const other = require('./module/index');");
         });
     });
     describe('module import', () => {
@@ -52,7 +52,7 @@ describe('MoveRefactor', () => {
                     .option('sourceFile', 'other.js')
                     .option('targetFile', 'other2.js'));
 
-            expect(project.getFileContents('index.js')).toEqual("import other from './other2';");
+            expect(project.getFileContents('index.js')).codeEquals("import other from './other2';");
             expect(project.hasFile('other.js')).toBe(false);
             expect(project.hasFile('other2.js')).toBe(true);
         });

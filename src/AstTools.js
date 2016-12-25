@@ -14,6 +14,9 @@ const AstTools = module.exports = {
     parse(program, options) {
         return acorn.parse(program, options);
     },
+    hasStatements(node) {
+        return !!node.body;
+    },
     createNodeParents(node) {
         class NodeParents {
             constructor(rootNode) {

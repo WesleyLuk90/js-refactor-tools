@@ -6,6 +6,10 @@ class Edit {
         return new ReplaceEdit(filePath, start, end, content);
     }
 
+    static insert(filePath, insertionPoint, content) {
+        return new ReplaceEdit(filePath, insertionPoint, insertionPoint, content);
+    }
+
     static move(sourcePath, targetPath) {
         return new MoveEdit(sourcePath, targetPath);
     }

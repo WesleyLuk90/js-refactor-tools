@@ -11,7 +11,8 @@ describe('ExtractFunctionRefactor', () => {
                     .option('functionName', 'extracted')
                     .inputFromRegex('index.js', /(const a = call\(\); const b = call\(\);)/));
 
-            expect(project.getFileContents('index.js')).toEqual('function extracted() { const cat = 1 + 2;const a = cat + 3; }');
+            expect(project.getFileContents('index.js'))
+                .codeEquals('function extracted() { const a = call(); const b = call(); } extracted();');
         });
     });
 });

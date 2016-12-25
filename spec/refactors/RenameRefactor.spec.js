@@ -15,7 +15,7 @@ var b = a + 1;
                     .inputFromRegex('index.js', /var (a)/)
                     .option('newName', 'cat'));
 
-            expect(project.getFileContents('index.js')).toEqual(`
+            expect(project.getFileContents('index.js')).codeEquals(`
 var cat = 10;
 call(cat);
 var b = cat + 1;
@@ -35,7 +35,7 @@ const d = abc;
                     .inputFromRegex('index.js', /function (abc)\(\)/)
                     .option('newName', 'def'));
 
-            expect(project.getFileContents('index.js')).toEqual(`
+            expect(project.getFileContents('index.js')).codeEquals(`
 function def() {}
 def();
 const d = def;
@@ -55,7 +55,7 @@ function b() { var a = 2; }
                     .inputFromRegex('index.js', /var (a)/)
                     .option('newName', 'cat'));
 
-            expect(project.getFileContents('index.js')).toEqual(`
+            expect(project.getFileContents('index.js')).codeEquals(`
 var cat;
 cat + 1;
 function b() { var a = 2; }
@@ -80,7 +80,7 @@ const myClass = new MyClass();
                     .inputFromRegex('index.js', /class (MyClass) /)
                     .option('newName', 'MyNewClass'));
 
-            expect(project.getFileContents('index.js')).toEqual(`
+            expect(project.getFileContents('index.js')).codeEquals(`
 class MyNewClass {
     static MyClass() {
         return new MyNewClass();

@@ -16,7 +16,8 @@
         "eslint": "^3.12.2",
         "eslint-config-airbnb-base": "^11.0.0",
         "eslint-plugin-import": "^2.2.0",
-        "jasmine": "^2.5.2"
+        "jasmine": "^2.5.2",
+        "js-beautify": "^1.6.4"
     },
     "scripts": {
         "test": "jasmine",

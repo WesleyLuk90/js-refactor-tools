@@ -11,7 +11,7 @@ describe('ExtractVariable', () => {
                     .option('variableName', 'cat')
                     .inputFromRegex('index.js', /const a = (1 \+ 2) \+ 3;/));
 
-            expect(project.getFileContents('index.js')).toEqual('const cat = 1 + 2;const a = cat + 3;');
+            expect(project.getFileContents('index.js')).codeEquals('const cat = 1 + 2;const a = cat + 3;');
         });
         it('should extract a function scoped variable', () => {
             const project = toolkit.newProject()
@@ -22,7 +22,7 @@ describe('ExtractVariable', () => {
                     .option('variableName', 'cat')
                     .inputFromRegex('index.js', /const a = (1 \+ 2) \+ 3;/));
 
-            expect(project.getFileContents('index.js')).toEqual('function myFunction() { const cat = 1 + 2;const a = cat + 3; }');
+            expect(project.getFileContents('index.js')).codeEquals('function myFunction() { const cat = 1 + 2;const a = cat + 3; }');
         });
         it('should extract from a class method', () => {
             const project = toolkit.newProject()
@@ -33,7 +33,7 @@ describe('ExtractVariable', () => {
                     .option('variableName', 'cat')
                     .inputFromRegex('index.js', /const a = (1 \+ 2) \+ 3;/));
 
-            expect(project.getFileContents('index.js')).toEqual('class MyClass { myFunction() { const cat = 1 + 2;const a = cat + 3; } }');
+            expect(project.getFileContents('index.js')).codeEquals('class MyClass { myFunction() { const cat = 1 + 2;const a = cat + 3; } }');
         });
     });
     describe('expressions', () => {
@@ -47,7 +47,7 @@ describe('ExtractVariable', () => {
                     .inputFromRegex('index.js', /const value = (some\.method\(\))\.toCall\(\);/));
 
             expect(project.getFileContents('index.js'))
-                .toEqual('const cat = some.method();const value = cat.toCall();');
+                .codeEquals('const cat = some.method();const value = cat.toCall();');
         });
         it('should extract a sub expressions', () => {
             const project = toolkit.newProject()
@@ -59,7 +59,7 @@ describe('ExtractVariable', () => {
                     .inputFromRegex('index.js', /const value = 1 \+ (2 \* 3) \+ 5;/));
 
             expect(project.getFileContents('index.js'))
-                .toEqual('const cat = 2 * 3;const value = 1 + cat + 5;');
+                .codeEquals('const cat = 2 * 3;const value = 1 + cat + 5;');
         });
     });
 });
