@@ -51,7 +51,6 @@ class ExpressionReplacer {
     }
 
     recurse(node, selection) {
-        console.log(node);
         if (AstTools.nodeEqualsSelection(node, selection)) {
             this.createAssignmentNode(this.variableName, node);
             this.replaceExpressionNode(node, this.variableName);
