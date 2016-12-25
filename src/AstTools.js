@@ -14,8 +14,8 @@ const AstTools = module.exports = {
     parse(program, options) {
         return acorn.parse(program, options);
     },
-    hasStatements(node) {
-        return !!node.body;
+    canInsertFunction(node) {
+        return !!node.body && (node.type === 'BlockStatement' || node.type === 'Program' || node.type === 'ClassBody');
     },
     createNodeParents(node) {
         class NodeParents {

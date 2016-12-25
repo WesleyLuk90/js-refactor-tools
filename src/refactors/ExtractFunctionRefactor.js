@@ -37,45 +37,89 @@ class FunctionReplacer {
         return childrenSlice;
     }
 
-    replaceNodes(parentNode, childrenSlice) {
-        const content = this.generateFunctionDeclaration(childrenSlice);
-        let a = parentNode;
-        let childNode = childrenSlice[0];
-        while (!AstTools.hasStatements(a)) {
-            childNode = a;
-            a = this.parentNodes.getParent(a);
+    replaceNodes(parentNode, functionBody) {
+        let insertableParent = parentNode.type === 'Program' ? parentNode : this.parentNodes.getParent(parentNode);
+        let childNode = parentNode.type === 'Program' ? functionBody[0] : parentNode;
+        while (!AstTools.canInsertFunction(insertableParent)) {
+            childNode = insertableParent;
+            insertableParent = this.parentNodes.getParent(insertableParent);
         }
-
-        this.edits.push(this.generateReplaceCode(childrenSlice));
-        this.edits.push(Edit.insert(this.filePath, childNode.start, content));
+        const functionDeclarationType = this.getFunctionDeclarationType(insertableParent);
+        this.edits.push(this.generateFunctionCallEdit(functionBody, functionDeclarationType));
+        this.edits.push(this.generateFunctionDeclarationEdit(childNode.start,
+            functionBody, functionDeclarationType));
     }
 
-    generateReplaceCode(childrenSlice) {
-        const callExpression = {
+    generateFunctionDeclarationEdit(insertionPoint, functionBody, functionDeclarationType) {
+        const content = this.generateFunctionDeclaration(functionBody, functionDeclarationType);
+        return Edit.insert(this.filePath, insertionPoint, content);
+    }
+
+    getFunctionDeclarationType(parentNode) {
+        if (parentNode.type === 'ClassBody') {
+            return 'MethodDefinition';
+        }
+        return 'FunctionDeclaration';
+    }
+
+    generateFunctionCallExpression(functionBody, type) {
+        let callee;
+        if (type === 'MethodDefinition') {
+            callee = {
+                type: 'MemberExpression',
+                object: { type: 'ThisExpression' },
+                property: { type: 'Identifier', name: this.functionName },
+            };
+        } else {
+            callee = { type: 'Identifier', name: this.functionName };
+        }
+        return {
             type: 'ExpressionStatement',
             expression: {
                 type: 'CallExpression',
-                callee: { type: 'Identifier', name: this.functionName },
+                callee,
                 arguments: [],
             },
         };
-        const content = escodegen.generate(callExpression);
-        return Edit.replace(this.filePath, _(childrenSlice).first().start,
-            _(childrenSlice).last().end, content);
     }
 
-    generateFunctionDeclaration(bodyNodes) {
-        const body = {
-            type: 'FunctionDeclaration',
-            id: { type: 'Identifier', name: this.functionName },
-            params: [],
-            body: {
-                type: 'BlockStatement',
-                body: bodyNodes,
-            },
-        };
-        const content = escodegen.generate(body);
-        return content;
+    generateFunctionCallEdit(functionBody, type) {
+        const content = escodegen.generate(this.generateFunctionCallExpression(functionBody, type));
+        return Edit.replace(this.filePath, _(functionBody).first().start,
+            _(functionBody).last().end, content);
+    }
+
+    generateFunctionDeclaration(bodyNodes, type) {
+        if (type === 'MethodDefinition') {
+            const body = {
+                type: 'MethodDefinition',
+                key: { type: 'Identifier', name: this.functionName },
+                params: [],
+                kind: 'method',
+                value: {
+                    type: 'functionExpression',
+                    body: {
+                        type: 'BlockStatement',
+                        body: bodyNodes,
+                    },
+                    params: [],
+                },
+            };
+            const content = escodegen.generate(body);
+            return content;
+        } else {
+            const body = {
+                type: 'FunctionDeclaration',
+                id: { type: 'Identifier', name: this.functionName },
+                params: [],
+                body: {
+                    type: 'BlockStatement',
+                    body: bodyNodes,
+                },
+            };
+            const content = escodegen.generate(body);
+            return content;
+        }
     }
 
     getStartNode(nodes) {
