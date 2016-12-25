@@ -17,9 +17,9 @@ const Check = module.exports = {
         }
         return object;
     },
-    notNull(value) {
+    notNull(value, message) {
         if (value == null) {
-            throw new Error('Expected a not null value');
+            throw new Error(message || 'Expected a not null value');
         }
         return value;
     },

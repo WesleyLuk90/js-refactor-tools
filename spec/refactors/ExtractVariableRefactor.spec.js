@@ -1,7 +1,7 @@
 const toolkit = require('../../toolkit');
 
 describe('ExtractVariable', () => {
-    describe('contexts', () => {
+    describe('context', () => {
         it('should extract a file scoped variable', () => {
             const project = toolkit.newProject()
                 .addFile('index.js', 'const a = 1 + 2 + 3;')
