@@ -2,6 +2,7 @@ const Check = require('./Check');
 const AstTools = require('./AstTools');
 const ScopeBuilder = require('./scope/ScopeBuilder');
 const AbstractEdit = require('./edits/AbstractEdit');
+const Project = require('./Project');
 
 /* eslint-disable no-unused-vars */
 class AbstractRefactor {
@@ -19,6 +20,7 @@ class AbstractRefactor {
     }
 
     getParsedFile(project, fileName, suppliedOptions) {
+        Check.isInstanceOf(project, Project);
         Check.isString(fileName);
         const options = Object.assign({}, suppliedOptions);
         const fileContents = project.getFileContents(fileName);

@@ -1,6 +1,6 @@
 const toolkit = require('../../toolkit');
 
-describe('MoveRefactor', () => {
+describe('ExtractVariable', () => {
     describe('common js', () => {
         it('should update files in the same directory', () => {
             const project = toolkit.newProject()
