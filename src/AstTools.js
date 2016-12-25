@@ -1,4 +1,5 @@
 const acorn = require('acorn');
+const Check = require('./Check');
 
 const AstTools = module.exports = {
     nodeEqualsSelection(node, selection) {
@@ -12,6 +13,27 @@ const AstTools = module.exports = {
     },
     parse(program, options) {
         return acorn.parse(program, options);
+    },
+    createNodeParents(node) {
+        class NodeParents {
+            constructor(rootNode) {
+                this.parents = new Map();
+                this.addNode(rootNode);
+            }
+
+            addNode(nodeToAdd, parent) {
+                this.parents.set(nodeToAdd, parent);
+
+                AstTools.getNodeChildren(nodeToAdd, 'CHILDREN')
+                    .forEach(c => this.addNode(c, nodeToAdd));
+            }
+
+            getParent(childNode) {
+                Check.notNull(childNode);
+                return this.parents.get(childNode);
+            }
+        }
+        return new NodeParents(node);
     },
     getNodeChildren(node, type) {
         const arrayNodes = [];
@@ -41,6 +63,7 @@ const AstTools = module.exports = {
             'params',
             'value',
             'superClass',
+            'object',
         ],
         FUNCTION_CHILDREN: [
             'id',
