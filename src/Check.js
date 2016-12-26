@@ -11,6 +11,13 @@ const Check = module.exports = {
         }
         return a;
     },
+    isObject(object) {
+        Check.notNull(object);
+        if (typeof object !== 'object') {
+            throw new Error(`Expected an object but got ${object}`);
+        }
+        return object;
+    },
     isInstanceOf(object, klass) {
         if (!(object instanceof klass)) {
             throw new Error(`Expected an instance of ${klass.name} but got ${object}`);

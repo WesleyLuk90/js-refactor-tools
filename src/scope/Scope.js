@@ -31,16 +31,12 @@ class Scope {
         const variable = this.getOrCreateVariable(Variable.getName(node));
 
         variable.setDeclaration(node);
-
-        this.programScope.setVariableScope(node, this);
     }
 
     addVariableUse(node) {
         const variable = this.getOrCreateVariable(Variable.getName(node));
 
         variable.addUse(node);
-
-        this.programScope.setVariableScope(node, this);
     }
 
     declaresVariableWithName(name) {
@@ -71,6 +67,40 @@ class Scope {
 
     getChildScopes() {
         return this.childScopes;
+    }
+
+    addNode(node) {
+        this.programScope.setNodeScope(node, this);
+    }
+
+    isRoot() {
+        return this.parentScope == null;
+    }
+
+    getParent() {
+        return this.parentScope;
+    }
+
+    isAncestorOf(otherScope) {
+        Check.isInstanceOf(otherScope, Scope);
+        if (otherScope.isRoot()) {
+            return false;
+        }
+        if (otherScope.getParent() === this) {
+            return true;
+        }
+        return this.isAncestorOf(otherScope.getParent());
+    }
+
+    isDescendantOf(otherScope) {
+        Check.isInstanceOf(otherScope, Scope);
+        if (this.isRoot()) {
+            return false;
+        }
+        if (this.getParent() === otherScope) {
+            return true;
+        }
+        return this.getParent().isDescendantOf(otherScope);
     }
 }
 

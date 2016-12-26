@@ -19,10 +19,10 @@ class AbstractRefactor {
         return outputProject;
     }
 
-    getParsedFile(project, fileName, suppliedOptions) {
+    getParsedFile(project, fileName, optionalOptions) {
         Check.isInstanceOf(project, Project);
         Check.isString(fileName);
-        const options = Object.assign({}, suppliedOptions);
+        const options = Object.assign({}, optionalOptions);
         const fileContents = project.getFileContents(fileName);
         const parse = {};
         try {

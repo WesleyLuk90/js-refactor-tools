@@ -10,7 +10,7 @@ class RenameRefactor extends AbstractRefactor {
         const parsedFile = this.getParsedFile(project, selection.filePath, { buildScope: true });
         const node = this.findSelection(project, parsedFile);
 
-        const variableScope = parsedFile.programScope.getVariableScope(node);
+        const variableScope = parsedFile.programScope.getNodeScope(node);
         const uses = variableScope.getVariableUses(node);
 
         const editList = new EditList();

@@ -14,6 +14,8 @@ class ScopeBuilder {
     }
 
     _process(node, scope, parentNode) {
+        scope.addNode(node);
+
         if (!this._defineVariables(node, scope, parentNode)) {
             this._loadVariables(node, scope);
         }

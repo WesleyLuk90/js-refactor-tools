@@ -38,9 +38,15 @@ const AstTools = module.exports = {
         }
         return new NodeParents(node);
     },
+    isVariableReference(node) {
+        return node.type === 'Identifier';
+    },
     getNodeChildren(node, type) {
         const arrayNodes = [];
         AstTools.NODE_KEYS[type].forEach((key) => {
+            if (node.type === 'Literal' && key === 'value') {
+                return;
+            }
             if (node[key]) {
                 if (Array.isArray(node[key])) {
                     arrayNodes.push(...node[key]);

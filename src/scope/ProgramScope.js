@@ -4,22 +4,23 @@ const Check = require('../Check');
 class ProgramScope {
     constructor() {
         this.rootScope = new Scope(this, null);
-        this.variableScopes = new Map();
+        this.nodeScopes = new Map();
     }
 
     getRootScope() {
         return this.rootScope;
     }
 
-    setVariableScope(node, scope) {
-        if (this.variableScopes.has(node)) {
-            throw new Error(`Variable ${node} already has a defined scope`);
+    setNodeScope(node, scope) {
+        Check.isObject(node);
+        if (this.nodeScopes.has(node)) {
+            throw new Error(`Node ${node} already has a defined scope`);
         }
-        this.variableScopes.set(node, scope);
+        this.nodeScopes.set(node, scope);
     }
 
-    getVariableScope(node) {
-        return Check.notNull(this.variableScopes.get(node));
+    getNodeScope(node) {
+        return Check.notNull(this.nodeScopes.get(node));
     }
 }
 

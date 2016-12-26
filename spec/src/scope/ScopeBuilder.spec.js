@@ -30,7 +30,7 @@ describe('ScopeBuilder', () => {
     function getScopeDeclaringVariable(name) {
         const variable = findVariableWithName(name);
         const variableNode = variable.getDeclaration();
-        return programScope.getVariableScope(variableNode);
+        return programScope.getNodeScope(variableNode);
     }
 
     it('should get declared variables', () => {
@@ -40,7 +40,7 @@ describe('ScopeBuilder', () => {
         const variableDeclaration = variable.getDeclaration();
         expect(variableDeclaration.type).toBe('Identifier');
         expect(variable.getUses()).toEqual([variableDeclaration]);
-        expect(programScope.getVariableScope(variableDeclaration))
+        expect(programScope.getNodeScope(variableDeclaration))
             .toEqual(programScope.getRootScope());
     });
 
@@ -48,7 +48,7 @@ describe('ScopeBuilder', () => {
         buildWithProgram('var a; a = 20; function b() { a = 10; }');
         const variable = findVariableWithName('a');
         const variableNode = variable.getDeclaration();
-        const variableScope = programScope.getVariableScope(variableNode);
+        const variableScope = programScope.getNodeScope(variableNode);
         expect(variableScope.getVariableUses(variableNode).length).toBe(3);
     });
 
@@ -61,7 +61,7 @@ describe('ScopeBuilder', () => {
         buildWithProgram('var a; a + 20; function b(a) { a + 30; }');
         const variable = findVariableWithName('a');
         const variableNode = variable.getDeclaration();
-        const variableScope = programScope.getVariableScope(variableNode);
+        const variableScope = programScope.getNodeScope(variableNode);
         expect(variableScope.getVariableUses(variableNode).length).toBe(2);
     });
 
@@ -75,7 +75,7 @@ describe('ScopeBuilder', () => {
         buildWithProgram('var a; var b = a + 10; function c() { return a;};');
         const variable = findVariableWithName('a');
         const variableNode = variable.getDeclaration();
-        const variableScope = programScope.getVariableScope(variableNode);
+        const variableScope = programScope.getNodeScope(variableNode);
         expect(variableScope.getVariableUses(variableNode).length).toBe(3);
     });
 
@@ -85,7 +85,7 @@ describe('ScopeBuilder', () => {
         const variableNode = variable.getDeclaration();
         expect(variableNode.start).toBe(9);
         expect(variableNode.end).toBe(10);
-        const variableScope = programScope.getVariableScope(variableNode);
+        const variableScope = programScope.getNodeScope(variableNode);
         expect(variableScope.getVariableUses(variableNode).length).toBe(1);
     });
 });
