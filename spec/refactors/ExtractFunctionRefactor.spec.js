@@ -92,4 +92,18 @@ describe('ExtractFunctionRefactor', () => {
     describe('with return values', () => {
 
     });
+    describe('with return value', () => {
+        fit('should return a value if it is used later in the scope', () => {
+            const project = toolkit.newProject()
+                .addFile('index.js', 'const a = 10; const b = thing(a); call(b);')
+                .applyRefactor('extract_function',
+                    toolkit
+                    .newOptions()
+                    .option('functionName', 'extracted')
+                    .inputFromRegex('index.js', /(const a = 10; const b = thing\(a\);)/));
+
+            expect(project.getFileContents('index.js'))
+                .codeEquals('function extracted() { const a = 10; const b = thing(a); return b; } const b = extracted(); call(b);');
+        });
+    });
 });

@@ -24,6 +24,7 @@ class FunctionReplacer {
         if (start && end) {
             const childrenSlice = this.getChildrenSlice(children, start, end);
             const parameters = this.findRequiredVariables(node, childrenSlice);
+            const returnValues = this.findReturnValues(node, childrenSlice);
             this.replaceNodes(node, childrenSlice, parameters);
             return;
         }
@@ -54,8 +55,16 @@ class FunctionReplacer {
         return variables;
     }
 
+    findReturnValues(node, childrenSlice) {
+        const nodeChildren = _(AstTools.getNodeChildren(node, 'CHILDREN'));
+        const nodeChildrenIndex = nodeChildren.indexOf(_(childrenSlice).last());
+        Check.that(nodeChildrenIndex > -1);
+        const afterChildren = nodeChildren.slice(nodeChildrenIndex + 1).value();
+        console.log(afterChildren);
+    }
+
     variableIsDeclaredIn(variable, nodeList) {
-        const declaredIn = (node) =>
+        const declaredIn = node =>
             node === variable ||
             AstTools.getNodeChildren(node, 'CHILDREN').some(n => declaredIn(n));
         return nodeList.some(n => declaredIn(n));
