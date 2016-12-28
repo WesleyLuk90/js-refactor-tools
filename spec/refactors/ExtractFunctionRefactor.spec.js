@@ -76,5 +76,20 @@ describe('ExtractFunctionRefactor', () => {
             expect(project.getFileContents('index.js'))
                 .codeEquals('class MyClass { extracted(a) { this.process(a, this.value); } myMethod() { const a = 10; this.extracted(a); } }');
         });
+        it('should only include referenced variables', () => {
+            const project = toolkit.newProject()
+                .addFile('index.js', 'class MyClass { myMethod() { const a = 10; const b = 20; this.process(a); } }')
+                .applyRefactor('extract_function',
+                    toolkit
+                    .newOptions()
+                    .option('functionName', 'extracted')
+                    .inputFromRegex('index.js', /(this\.process\(a\);)/));
+
+            expect(project.getFileContents('index.js'))
+                .codeEquals('class MyClass { extracted(a) { this.process(a); } myMethod() { const a = 10; const b = 20; this.extracted(a); } }');
+        });
+    });
+    describe('with return values', () => {
+
     });
 });
