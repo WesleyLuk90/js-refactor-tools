@@ -27,7 +27,7 @@ class FunctionReplacer {
             const assignedVariables = this.findAssignedToVariables(childrenSlice);
             const accessedVariables = this.filterAccessedVariables(node, childrenSlice, assignedVariables);
             if (accessedVariables.length > 1) {
-                throw new Error('More than one variable is assigned to');
+                throw new Error('More than one variable is assigned to in the block');
             }
             this.replaceNodes(node, childrenSlice, parameters, accessedVariables[0]);
             return;
@@ -62,7 +62,6 @@ class FunctionReplacer {
     findAssignedToVariables(nodeSlice) {
         const variables = [];
         AstTools.walkNodeChildren(nodeSlice, (n) => {
-            console.log(n);
             if (AstTools.isVariableAssignment(n)) {
                 variables.push(Check.notNull(n.id));
             }

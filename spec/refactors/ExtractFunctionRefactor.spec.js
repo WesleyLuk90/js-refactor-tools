@@ -90,7 +90,7 @@ describe('ExtractFunctionRefactor', () => {
         });
     });
     describe('with return value', () => {
-        fit('should return a value if it is used later in the scope', () => {
+        it('should return a value if it is used later in the scope', () => {
             const project = toolkit.newProject()
                 .addFile('index.js', 'const a = 10; const b = thing(a); call(b);')
                 .applyRefactor('extract_function',
@@ -101,6 +101,17 @@ describe('ExtractFunctionRefactor', () => {
 
             expect(project.getFileContents('index.js'))
                 .codeEquals('function extracted() { const a = 10; const b = thing(a); return b; } const b = extracted(); call(b);');
+        });
+        it('should throw an error if it multiple values need to be returned', () => {
+            expect(() => {
+                toolkit.newProject()
+                    .addFile('index.js', 'const a = 10; const b = thing(a); call(b); call(a);')
+                    .applyRefactor('extract_function',
+                        toolkit
+                        .newOptions()
+                        .option('functionName', 'extracted')
+                        .inputFromRegex('index.js', /(const a = 10; const b = thing\(a\);)/));
+            }).toThrowError('More than one variable is assigned to in the block');
         });
     });
 });
