@@ -24,8 +24,12 @@ class FunctionReplacer {
         if (start && end) {
             const childrenSlice = this.getChildrenSlice(children, start, end);
             const parameters = this.findRequiredVariables(node, childrenSlice);
-            const returnValues = this.findReturnValues(node, childrenSlice);
-            this.replaceNodes(node, childrenSlice, parameters);
+            const assignedVariables = this.findAssignedToVariables(childrenSlice);
+            const accessedVariables = this.filterAccessedVariables(node, childrenSlice, assignedVariables);
+            if (accessedVariables.length > 1) {
+                throw new Error('More than one variable is assigned to');
+            }
+            this.replaceNodes(node, childrenSlice, parameters, accessedVariables[0]);
             return;
         }
         children.forEach(child => this.recurse(child));
@@ -55,12 +59,33 @@ class FunctionReplacer {
         return variables;
     }
 
-    findReturnValues(node, childrenSlice) {
+    findAssignedToVariables(nodeSlice) {
+        const variables = [];
+        AstTools.walkNodeChildren(nodeSlice, (n) => {
+            console.log(n);
+            if (AstTools.isVariableAssignment(n)) {
+                variables.push(Check.notNull(n.id));
+            }
+        });
+        return variables;
+    }
+
+    filterAccessedVariables(node, childrenSlice, assignedVariables) {
         const nodeChildren = _(AstTools.getNodeChildren(node, 'CHILDREN'));
         const nodeChildrenIndex = nodeChildren.indexOf(_(childrenSlice).last());
         Check.that(nodeChildrenIndex > -1);
         const afterChildren = nodeChildren.slice(nodeChildrenIndex + 1).value();
-        console.log(afterChildren);
+        const accessedChildren = new Set();
+        AstTools.walkNodeChildren(afterChildren, (n) => {
+            if (n.type === 'Identifier') {
+                accessedChildren.add(n);
+            }
+        });
+        return assignedVariables.filter((identifiers) => {
+            const scope = this.programScope.getNodeScope(identifiers);
+            const variable = scope.getVariableByName(identifiers.name);
+            return variable.getUses().some(u => accessedChildren.has(u));
+        });
     }
 
     variableIsDeclaredIn(variable, nodeList) {
@@ -90,20 +115,20 @@ class FunctionReplacer {
         return childNode;
     }
 
-    replaceNodes(parentNode, functionBody, parameters) {
+    replaceNodes(parentNode, functionBody, parameters, returnVariable) {
         const insertBefore = this.getInsertBeforeNode(parentNode, functionBody);
         const insertableParent = this.parentNodes.getParent(insertBefore);
         const functionDeclarationType = this.getFunctionDeclarationType(insertableParent);
         this.edits.push(this.generateFunctionCallEdit(functionBody, parameters,
-            functionDeclarationType));
+            functionDeclarationType, returnVariable));
         this.edits.push(this.generateFunctionDeclarationEdit(insertBefore.start,
-            functionBody, parameters, functionDeclarationType));
+            functionBody, parameters, functionDeclarationType, returnVariable));
     }
 
     generateFunctionDeclarationEdit(insertionPoint, functionBody, parameters,
-        functionDeclarationType) {
+        functionDeclarationType, returnVariable) {
         const content = this.generateFunctionDeclaration(functionBody, parameters,
-            functionDeclarationType);
+            functionDeclarationType, returnVariable);
         return Edit.insert(this.filePath, insertionPoint, content);
     }
 
@@ -127,24 +152,48 @@ class FunctionReplacer {
             callee = { type: 'Identifier', name: this.functionName };
         }
         return {
-            type: 'ExpressionStatement',
-            expression: {
-                type: 'CallExpression',
-                callee,
-                arguments: parameters,
-            },
+            type: 'CallExpression',
+            callee,
+            arguments: parameters,
         };
     }
 
-    generateFunctionCallEdit(functionBody, parameters, type) {
-        const content = escodegen.generate(
-            this.generateFunctionCallExpression(functionBody, parameters, type));
+    generateFunctionCallEdit(functionBody, parameters, type, returnVariable) {
+        const functionCall = this.generateFunctionCallExpression(functionBody, parameters, type);
+        const assignedFunctionCall = this.assignToVariable(functionCall, returnVariable);
+        const content = escodegen.generate(assignedFunctionCall);
         return Edit.replace(this.filePath, _(functionBody).first().start,
             _(functionBody).last().end, content);
     }
 
-    generateFunctionDeclaration(bodyNodes, parameters, type) {
+    assignToVariable(functionCall, variable) {
+        if (!variable) {
+            return {
+                type: 'ExpressionStatement',
+                expression: functionCall,
+            };
+        }
+        return {
+            type: 'VariableDeclaration',
+            declarations: [{
+                type: 'VariableDeclarator',
+                start: 6,
+                end: 12,
+                id: variable,
+                init: functionCall,
+            }],
+            kind: 'const',
+        };
+    }
+
+    generateFunctionDeclaration(bodyNodes, parameters, type, returnVariable) {
         Check.isString(type);
+        if (returnVariable) {
+            bodyNodes.push({
+                type: 'ReturnStatement',
+                argument: returnVariable,
+            });
+        }
         if (type === 'MethodDefinition') {
             const body = {
                 type: 'MethodDefinition',

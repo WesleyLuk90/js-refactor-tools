@@ -89,9 +89,6 @@ describe('ExtractFunctionRefactor', () => {
                 .codeEquals('class MyClass { extracted(a) { this.process(a); } myMethod() { const a = 10; const b = 20; this.extracted(a); } }');
         });
     });
-    describe('with return values', () => {
-
-    });
     describe('with return value', () => {
         fit('should return a value if it is used later in the scope', () => {
             const project = toolkit.newProject()

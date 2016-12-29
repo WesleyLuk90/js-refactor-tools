@@ -24,6 +24,12 @@ const Check = module.exports = {
         }
         return object;
     },
+    isFunction(func) {
+        if (typeof func !== 'function') {
+            throw new Error(`Expected a function but got ${func} instead`);
+        }
+        return func;
+    },
     notNull(value, message) {
         if (value == null) {
             throw new Error(message || 'Expected a not null value');

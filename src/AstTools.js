@@ -57,6 +57,18 @@ const AstTools = module.exports = {
         });
         return arrayNodes;
     },
+    walkNodeChildren(nodeOrNodes, callback) {
+        Check.isFunction(callback);
+        const nodes = Array.isArray(nodeOrNodes) ? nodeOrNodes : [nodeOrNodes];
+        nodes.forEach((n) => {
+            callback(n);
+            AstTools.getNodeChildren(n, 'CHILDREN')
+                .forEach(nc => AstTools.walkNodeChildren(nc, callback));
+        });
+    },
+    isVariableAssignment(node) {
+        return node.type === 'VariableDeclarator';
+    },
     NODE_KEYS: {
         CHILDREN: [
             'body',
